@@ -1,0 +1,15 @@
+datasource:
+  mysql:
+    type: mysql
+    host: 127.0.0.1
+    port: 3306
+    username: root
+    password: root
+    database: canyon
+  mongodb:
+    type: mongodb
+    host: 127.0.0.1
+    port: 27017
+    username: root
+    password: root
+    database: canyon
