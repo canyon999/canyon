@@ -9,6 +9,14 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
   app.use(bodyParser.json({ limit: '50mb' }))
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
+  app.use(function (req, res, next) {
+    const old_url = req.url
+    if (old_url.includes('/api/cov')) {
+      req.url = old_url.replace('/api/cov', '')
+      console.log('foo: ' + old_url + ' -> ' + req.url)
+    }
+    next()
+  })
   app.enableCors()
   await app.listen(8080)
 }

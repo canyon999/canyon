@@ -36,6 +36,7 @@
     "class-validator": "^0.13.2",
     "colors": "1.4.0",
     "compressing": "^1.5.1",
+    "http-proxy-middleware": "^2.0.1",
     "istanbul": "^0.4.5",
     "istanbul-lib-coverage": "^3.2.0",
     "istanbul-lib-report": "^3.0.0",
