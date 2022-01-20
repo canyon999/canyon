@@ -15,7 +15,7 @@ export class AppController {
   @Get('/v')
   @Public()
   v(): any {
-    return { v: 'v1.2.3' }
+    return { v: 'vlatest' }
   }
   // 颁发token的接口，其他接口要用，直接用axios请求
   @UseGuards(LocalAuthGuard)
