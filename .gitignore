@@ -11,3 +11,4 @@ report
 
 pnpm-lock.yaml
 .pnpm-debug.log
+conf/applicationdev.yml

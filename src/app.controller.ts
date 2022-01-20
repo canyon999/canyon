@@ -12,6 +12,11 @@ export class AppController {
   health(): string {
     return '365ms'
   }
+  @Get('/v')
+  @Public()
+  v(): any {
+    return { v: 'v1.2.3' }
+  }
   // 颁发token的接口，其他接口要用，直接用axios请求
   @UseGuards(LocalAuthGuard)
   @Public()
