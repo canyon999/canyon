@@ -18,4 +18,16 @@ export class UserController {
   authTrip(@Body() authTripDto: any) {
     return this.userService.authTrip(authTripDto)
   }
+
+  @Public()
+  @Post('checkEmailType')
+  checkEmailType(@Body() checkEmailTypeDto: any) {
+    return this.userService.checkEmailType(checkEmailTypeDto)
+  }
+
+  @Public()
+  @Post('sendTemporaryPassword')
+  sendTemporaryPassword(@Body() sendTemporaryPasswordDto: any) {
+    return this.userService.sendTemporaryPassword(sendTemporaryPasswordDto)
+  }
 }

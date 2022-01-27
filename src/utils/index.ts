@@ -55,3 +55,7 @@ export function formatCoverage(coverage: any): any {
     }
   })
 }
+
+export function getRangeRandomNumber(min,max) {
+  return Math.floor(Math.random()*(max-min))+min;
+}

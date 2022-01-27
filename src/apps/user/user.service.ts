@@ -2,6 +2,8 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { User } from './entities/user.entity'
 import axios from 'axios'
+import { getRangeRandomNumber } from '../../utils'
+// import * as Util from "util";
 
 @Injectable()
 export class UserService {
@@ -50,7 +52,11 @@ export class UserService {
 
   // 登陆接口！！！
   async passwordLogin({ username, password }) {
-    const user = await this.userRepository.find({ password, username })
+    const user = await this.userRepository.find({
+      password,
+      username,
+      activate: 1,
+    })
     if (user.length > 0) {
       return user[0]
     } else {
@@ -62,5 +68,60 @@ export class UserService {
         HttpStatus.FORBIDDEN,
       )
     }
+  }
+
+  // 检查是否存在邮箱，如果没有就发邮件
+  async checkEmailType({ email }) {
+    if (await this.userRepository.findOne({ username: email, activate: 1 })) {
+      return {
+        hasAccount: true,
+      }
+    } else {
+      if (await this.userRepository.findOne({ username: email, activate: 0 })) {
+        return this.userRepository.update(
+          { username: email },
+          {
+            password: String(getRangeRandomNumber(1000, 9999)),
+          },
+        )
+        // getRangeRandomNumber
+      } else {
+        return this.userRepository.insert({
+          username: email,
+          password: String(getRangeRandomNumber(1000, 9999)),
+        })
+      }
+    }
+  }
+
+  // 把发过去的邮件检查一下
+  async sendTemporaryPassword({ email, password }) {
+    const userRepositoryFindOneByUsernameAndActivateTrue = await this.userRepository.findOne({ username: email, activate: 1 })
+
+    if (userRepositoryFindOneByUsernameAndActivateTrue){
+      throw new HttpException(
+          {
+            statusCode: HttpStatus.FORBIDDEN,
+            message: '该邮箱已被激活',
+          },
+          HttpStatus.FORBIDDEN,
+      )
+    }
+
+
+    const userRepositoryFindOneByUsernameAndPasswordActivateFalse = await this.userRepository.findOne({ username: email, password: password, activate: 0 })
+
+    if (!userRepositoryFindOneByUsernameAndPasswordActivateFalse){
+      throw new HttpException(
+          {
+            statusCode: HttpStatus.FORBIDDEN,
+            message: '密码不对',
+          },
+          HttpStatus.FORBIDDEN,
+      )
+    }
+
+    await this.userRepository.update({ username: email,password: password }, { activate: 1 })
+    return axios.post('http://127.0.0.1:8080/auth/login',{ username: email,password: password }).then(res=>res.data)
   }
 }

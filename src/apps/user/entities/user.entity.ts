@@ -31,4 +31,11 @@ export class User extends CommonBaseEntity {
     comment: 'role',
   })
   role: string
+
+  @Column({
+    type: 'int',
+    default: 0,
+    comment: 'activate',
+  })
+  activate: number
 }
