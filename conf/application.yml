@@ -13,3 +13,7 @@ datasource:
     username: root
     password: root
     database: canyon
+mail:
+  sender: xxx@xxx.com
+  appId: 100000000
+  url: http:xxx

@@ -30,4 +30,12 @@ export class UserController {
   sendTemporaryPassword(@Body() sendTemporaryPasswordDto: any) {
     return this.userService.sendTemporaryPassword(sendTemporaryPasswordDto)
   }
+
+  @Public()
+  @Post('getActivatedAccountPassword')
+  getActivatedAccountPassword(@Body() getActivatedAccountPasswordDto: any) {
+    return this.userService.getActivatedAccountPassword(getActivatedAccountPasswordDto)
+  }
+
+  // Get the activated account password
 }
