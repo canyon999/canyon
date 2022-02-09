@@ -34,7 +34,9 @@ export class UserController {
   @Public()
   @Post('getActivatedAccountPassword')
   getActivatedAccountPassword(@Body() getActivatedAccountPasswordDto: any) {
-    return this.userService.getActivatedAccountPassword(getActivatedAccountPasswordDto)
+    return this.userService.getActivatedAccountPassword(
+      getActivatedAccountPasswordDto,
+    )
   }
 
   // Get the activated account password

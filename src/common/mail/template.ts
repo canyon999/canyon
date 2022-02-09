@@ -1,4 +1,4 @@
-export const test123 = ({code})=> `<div id="root">
+export const test123 = ({ code }) => `<div id="root">
     <div class="wrap" style="font-size: 12px;text-align: left;line-height: 1.5;max-width: 600px;padding-top: 32px;padding-left: 64px;padding-right: 64px;margin: 0 auto;">
         <h1 style="font-size: 20px">注册</h1>
         <p>我们找不到此电子邮件地址的帐户。</p>
@@ -14,7 +14,7 @@ export const test123 = ({code})=> `<div id="root">
 
 </div>`
 
-export const test321 = ({code})=>`<div id="root">
+export const test321 = ({ code }) => `<div id="root">
     <div class="wrap" style="font-size: 12px;text-align: left;line-height: 1.5;max-width: 600px;padding-top: 32px;padding-left: 64px;padding-right: 64px;margin: 0 auto;">
         <h1 style="font-size: 20px">忘记密码</h1>
         <p>您的账号密码为</p>

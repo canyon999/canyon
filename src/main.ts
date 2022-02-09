@@ -13,7 +13,6 @@ async function bootstrap() {
     const old_url = req.url
     if (old_url.includes('/api/cov')) {
       req.url = old_url.replace('/api/cov', '')
-      console.log('foo: ' + old_url + ' -> ' + req.url)
     }
     next()
   })

@@ -3,7 +3,7 @@ import { Repository } from 'typeorm'
 import { User } from './entities/user.entity'
 import axios from 'axios'
 import { getRangeRandomNumber } from '../../utils'
-import {sendPassword, sendSignUp} from "../../common/mail/send-mail";
+import { sendPassword, sendSignUp } from '../../common/mail/send-mail'
 
 @Injectable()
 export class UserService {
@@ -20,7 +20,7 @@ export class UserService {
     let token = ''
     if (findOneByEmail) {
       token = await axios
-        .post('http://127.0.0.1:8080/auth/login', {
+        .post(`${global.conf.base.url}/auth/login`, {
           username: findOneByEmail.username,
           password: findOneByEmail.password,
         })
@@ -32,7 +32,7 @@ export class UserService {
         username: email,
       })
       token = await axios
-        .post('http://127.0.0.1:8080/auth/login', {
+        .post(`${global.conf.base.url}/auth/login`, {
           username: email,
           password: email,
         })
@@ -79,7 +79,10 @@ export class UserService {
       }
     } else {
       if (await this.userRepository.findOne({ username: email, activate: 0 })) {
-        sendSignUp({receivers:[email],bodyContentParams:{code:code}}).then(res=>{
+        sendSignUp({
+          receivers: [email],
+          bodyContentParams: { code: code },
+        }).then((res) => {
           console.log(res)
         })
         return this.userRepository.update(
@@ -89,7 +92,10 @@ export class UserService {
           },
         )
       } else {
-        sendSignUp({receivers:[email],bodyContentParams:{code:code}}).then(res=>{
+        sendSignUp({
+          receivers: [email],
+          bodyContentParams: { code: code },
+        }).then((res) => {
           console.log(res)
         })
         return this.userRepository.insert({
@@ -135,7 +141,7 @@ export class UserService {
       { activate: 1 },
     )
     return axios
-      .post('http://127.0.0.1:8080/auth/login', {
+      .post(`${global.conf.base.url}/auth/login`, {
         username: email,
         password: password,
       })
@@ -154,7 +160,12 @@ export class UserService {
         HttpStatus.FORBIDDEN,
       )
     }
-    sendPassword({receivers:[email],bodyContentParams:{code:userRepositoryFindOneByUsernameAndActivateTrue.password}}).then(res=>{
+    sendPassword({
+      receivers: [email],
+      bodyContentParams: {
+        code: userRepositoryFindOneByUsernameAndActivateTrue.password,
+      },
+    }).then((res) => {
       console.log(res)
     })
     return { msg: '发送成功' }
