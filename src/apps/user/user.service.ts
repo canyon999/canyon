@@ -135,4 +135,24 @@ export class UserService {
     })
     return { msg: '发送成功' }
   }
+
+  async changePassword(currentUser, { oldPassword, newPassword }) {
+    const currentUserInfo = await this.userRepository.findOne({
+      id: currentUser,
+    })
+    if (currentUserInfo.password === oldPassword) {
+      return this.userRepository.update(
+        { id: currentUser },
+        { password: newPassword },
+      )
+    } else {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.FORBIDDEN,
+          message: '旧密码错误',
+        },
+        HttpStatus.FORBIDDEN,
+      )
+    }
+  }
 }

@@ -32,4 +32,12 @@ export class UserController {
       getActivatedAccountPasswordDto,
     )
   }
+
+  @Post('changePassword')
+  changePassword(
+    @Request() request: { user: { id: number } },
+    @Body() changePasswordDto: any,
+  ) {
+    return this.userService.changePassword(request.user.id, changePasswordDto)
+  }
 }
