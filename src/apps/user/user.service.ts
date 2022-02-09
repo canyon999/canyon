@@ -15,41 +15,6 @@ export class UserService {
     return this.userRepository.findOne({ id: currentUser })
   }
 
-  async authTrip({ email }) {
-    const findOneByEmail = await this.userRepository.findOne({ email: email })
-    let token = ''
-    if (findOneByEmail) {
-      token = await axios
-        .post(`${global.conf.base.url}/auth/login`, {
-          username: findOneByEmail.username,
-          password: findOneByEmail.password,
-        })
-        .then((res) => res.data.token)
-    } else {
-      await this.userRepository.insert({
-        email: email,
-        password: email,
-        username: email,
-      })
-      token = await axios
-        .post(`${global.conf.base.url}/auth/login`, {
-          username: email,
-          password: email,
-        })
-        .then((res) => res.data.token)
-    }
-    if (token === '') {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: '登陆失败',
-        },
-        HttpStatus.FORBIDDEN,
-      )
-    }
-    return { token: token }
-  }
-
   // 登陆接口！！！
   async passwordLogin({ username, password }) {
     const user = await this.userRepository.find({

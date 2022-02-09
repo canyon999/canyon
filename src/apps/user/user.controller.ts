@@ -14,12 +14,6 @@ export class UserController {
   }
 
   @Public()
-  @Post('auth/trip')
-  authTrip(@Body() authTripDto: any) {
-    return this.userService.authTrip(authTripDto)
-  }
-
-  @Public()
   @Post('checkEmailType')
   checkEmailType(@Body() checkEmailTypeDto: any) {
     return this.userService.checkEmailType(checkEmailTypeDto)
@@ -38,6 +32,4 @@ export class UserController {
       getActivatedAccountPasswordDto,
     )
   }
-
-  // Get the activated account password
 }
