@@ -15,7 +15,7 @@ import { DatabaseModule } from '../database/database.module'
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '360000000s' },
+      signOptions: { expiresIn: '10y' },
     }),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],
