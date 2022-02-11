@@ -1,5 +1,6 @@
 import * as libCoverage from 'istanbul-lib-coverage'
 import * as libSourceMaps from 'istanbul-lib-source-maps'
+import { formatCoverage } from '../../../utils'
 
 export function mergeFileCoverage(first, second) {
   const ret = JSON.parse(JSON.stringify(first))
@@ -38,7 +39,7 @@ export async function mergeCoverage(coverages) {
   }, [])
 }
 
-function remapCoverage(obj, codePath) {
+export function remapCoverage(obj, codePath) {
   // sourcMap这边要把codePath加上！！！！！
   return libSourceMaps
     .createSourceMapStore()
@@ -50,11 +51,21 @@ function remapCoverage(obj, codePath) {
       for (const dataKey in data) {
         let r = dataKey
         if (dataKey.match(codePath)) {
+          r = dataKey.replace(codePath + '/', '')
+          o[r] = {
+            ...data[dataKey]['data'],
+            path: r,
+          }
         } else {
-          r = codePath + dataKey
+          // r = codePath + dataKey
+          o[r] = {
+            ...data[dataKey]['data'],
+          }
         }
-        o[r] = data[dataKey]['data']
       }
-      return o
+      // console.log(o,'o')
+      const a = Object.keys(o)
+      console.log(a)
+      return formatCoverage(o)
     })
 }

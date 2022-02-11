@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { Coverage } from '../entities/coverage.entity'
-import { mergeCoverage } from '../common/data-convert'
+import { mergeCoverage, remapCoverage } from '../common/data-convert'
 import { Model } from 'mongoose'
 import { CoverageDocument } from '../schema/coverage.schema'
 
@@ -27,6 +27,9 @@ export class RetrieveACoverageForAProjectService {
       cov.push(JSON.parse(c.coverage))
     }
 
-    return mergeCoverage(cov)
+    return remapCoverage(
+      await mergeCoverage(cov),
+      '/Users/zhangtao25/Desktop/flight/canyon/github/canyon',
+    )
   }
 }
