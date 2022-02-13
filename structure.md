@@ -16,3 +16,8 @@ project
 coverage
 codeHouse
 
+
+整个项目的覆盖率概览，需要聚合所有覆盖率
+
+单文件覆盖率信息，{}
+

@@ -8,6 +8,7 @@ import { CoverageClientDto } from '../dto/coverage-client.dto'
 import { CodeHouse } from '../entities/code-house.entity'
 import { CoverageDocument } from '../schema/coverage.schema'
 import { Model } from 'mongoose'
+import CanyonUtil from 'canyon-util'
 
 /**
  * 上传覆盖率，十分重要的服务
@@ -108,26 +109,11 @@ export class CoverageClientService {
     }
 
     // 3.修改覆盖率路径
-    function reversePath(p) {
-      const a = p.replace(instrumentCwd, ``)
-      let b = ''
-      // 从第二个字符开始
-      for (let i = 1; i < a.length; i++) {
-        b += a[i]
-      }
-      return b
-    }
-    const obj = {}
-    for (const coverageKey in coverage) {
-      obj[reversePath(coverageKey)] = {
-        ...coverage[coverageKey],
-        path: reversePath(coverageKey),
-      }
-    }
 
     // 考虑到会出现大数的情况
     cov.repoId = String(data.repoId)
-    cov.coverage = formatCoverage(obj)
+    // CanyonUtil.formatReportObject上报时就开启源码回溯
+    cov.coverage = await CanyonUtil.formatReportObject({ coverage, instrumentCwd }).then(res=>res.coverage)
     cov.instrumentCwd = data.instrumentCwd
     cov.codeHouseId = Number(data.codeHouseId)
     cov.projectId = checkIsHasProject.id
@@ -141,7 +127,6 @@ export class CoverageClientService {
     const obj = {}
     const { coverage } = data
     // 针对windows电脑，把反斜杠替换成正斜杠
-    data = JSON.parse(JSON.stringify(data).replace(/\\\\/g, '/'))
     // 做数据过滤，去除 \u0000 字符
     for (const coverageKey in coverage) {
       if (!coverageKey.includes('\u0000')) {

@@ -5,6 +5,10 @@ import { User } from '../../user/entities/user.entity'
 import { Project } from '../entities/project.entity'
 import { CodeHouse } from '../entities/code-house.entity'
 import axios from 'axios'
+import { Model } from 'mongoose'
+import { CoverageDocument } from '../schema/coverage.schema'
+import { mergeCoverage } from '../common/data-convert'
+import CanyonUtil from 'canyon-util'
 
 @Injectable()
 export class FileContentService {
@@ -17,6 +21,8 @@ export class FileContentService {
     private projectRepository: Repository<Project>,
     @Inject('DATABASE_CONNECTION_CodeHouseRepository')
     private codeHouseRepository: Repository<CodeHouse>,
+    @Inject('MONGODB_CONNECTION_CoverageRepository')
+    private coverageModel: Model<CoverageDocument>,
   ) {}
 
   async invoke(params: any) {
@@ -29,34 +35,58 @@ export class FileContentService {
       await this.codeHouseRepository.findOne({ id: codeHouseId })
     const { token, gitUrl } = codeHouseRepositoryFindOneResult
 
-    const res = await axios
-      .get(
-        `${gitUrl}/api/v4/projects/${repoId}/repository/files/${encodeURIComponent(
-          decodeURIComponent(filePath),
-        )}`,
-        {
-          params: {
-            ref: commitSha,
-          },
-          headers: {
-            'PRIVATE-TOKEN': token,
-          },
-        },
-      )
-      .then((res) => {
-        return {
-          ...res.data,
-        }
+    // const res = await axios
+    //   .get(
+    //     `${gitUrl}/api/v4/projects/${repoId}/repository/files/${encodeURIComponent(
+    //       decodeURIComponent(filePath),
+    //     )}`,
+    //     {
+    //       params: {
+    //         ref: commitSha,
+    //       },
+    //       headers: {
+    //         'PRIVATE-TOKEN': token,
+    //       },
+    //     },
+    //   )
+    //   .then((res) => {
+    //     return {
+    //       ...res.data,
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     throw new HttpException(
+    //       {
+    //         statusCode: HttpStatus.BAD_REQUEST,
+    //         message: '没有找到对应文件',
+    //       },
+    //       HttpStatus.BAD_REQUEST,
+    //     )
+    //   })
+
+    // 这里准备覆盖率数据
+    // await this.coverageRepository
+    // const { commitSha } = params
+    const coverageRepositoryFindResult = await this.coverageRepository.find({
+      commitSha: commitSha,
+    })
+    console.log(coverageRepositoryFindResult,'coverageRepositoryFindResult')
+    const cov = []
+
+    for (let i = 0; i < coverageRepositoryFindResult.length; i++) {
+      const c = await this.coverageModel.findOne({
+        _id: coverageRepositoryFindResult[i].relationId,
       })
-      .catch((err) => {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.BAD_REQUEST,
-            message: '没有找到对应文件',
-          },
-          HttpStatus.BAD_REQUEST,
-        )
-      })
-    return res
+      cov.push(JSON.parse(c.coverage))
+    }
+
+    console.log(CanyonUtil.mergeCoverage(cov),'CanyonUtil.mergeCoverage(cov)')
+
+    return {
+      f: 'res',
+      c: CanyonUtil.mergeCoverage(cov).find(
+        (item: any) => item.path === 'src/main.ts',
+      ),
+    }
   }
 }

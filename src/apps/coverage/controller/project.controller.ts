@@ -30,7 +30,7 @@ export class ProjectController implements CrudController<Project> {
     return this.retrieveACoverageForAProjectService.invoke(commitDto)
   }
 
-  // 检索一个项目的某一版本的某个文件的内容
+  // 检索一个项目的某一版本的某个文件的内容，这边需要找出他的覆盖率，通过文件路径
   @Get('filecontent')
   fileContent(@Query() fileContentDto: any) {
     return this.fileContentService.invoke(fileContentDto)
