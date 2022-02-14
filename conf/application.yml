@@ -1,18 +1,18 @@
 datasource:
   mysql:
     type: mysql
-    host: 114.55.145.3
-    port: 13306
+    host: 127.0.0.1
+    port: 3306
     username: root
-    password: wjyy26303
-    database: rico
+    password: root
+    database: canyon
   mongodb:
     type: mongodb
-    host: 114.55.145.3
-    port: 17017
+    host: 127.0.0.1
+    port: 27017
     username: root
-    password: wjyy26303
-    database: rico
+    password: root
+    database: canyon
 mail:
   sender: xxx@xxx.com
   appId: 100000000

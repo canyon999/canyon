@@ -4,6 +4,7 @@ import { Coverage } from '../entities/coverage.entity'
 import { mergeCoverage, remapCoverage } from '../common/data-convert'
 import { Model } from 'mongoose'
 import { CoverageDocument } from '../schema/coverage.schema'
+import CanyonUtil from "canyon-util";
 
 @Injectable()
 export class RetrieveACoverageForAProjectService {
@@ -27,9 +28,6 @@ export class RetrieveACoverageForAProjectService {
       cov.push(JSON.parse(c.coverage))
     }
 
-    return remapCoverage(
-      await mergeCoverage(cov),
-      '/Users/zhangtao25/Desktop/flight/canyon/github/canyon',
-    )
+    return CanyonUtil.genTreeSummaryMain(CanyonUtil.mergeCoverage(cov))
   }
 }
