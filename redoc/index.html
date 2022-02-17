@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/redoc@latest/bundles/redoc.standalone.js"></script>
+    <title>canyon</title>
+</head>
+<body>
+<div id="redoc-container"></div>
+</body>
+<script>
+    const swaggerSpec = {
+        "openapi": "3.0.0",
+        "paths": {
+            "/vi/health": {
+                "get": {
+                    "operationId": "AppController_health",
+                    "summary": "健康检查接口",
+                    "parameters": [],
+                    "responses": {"200": {"description": "健康", "content": {"application/json": {"example": "365ms"}}}},
+                    "tags": ["健康检查(health)"]
+                }
+            },
+            "/coverage/client": {
+                "post": {
+                    "summary": "覆盖率上报",
+                    "parameters": [],
+                    "requestBody": {
+                        "required": true,
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CoverageClientDto"}}}
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "覆盖率上传成功",
+                            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CoverageClientSuccess"}}}
+                        },
+                        "400": {
+                            "description": "覆盖率上传失败",
+                            "content": {"application/json": {"example": {
+                                        "statusCode": 400,
+                                        "message": "请检查commit是否存在"
+                                    }}}
+                        }
+                    },
+                }
+            },
+            "/auth/login": {
+                "post": {
+                    "operationId": "AppController_login",
+                    "summary": "账号密码登陆",
+                    "parameters": [],
+                    "requestBody": {
+                        "required": true,
+                        "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AuthLoginRequestDto"}}}
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "账号密码登陆成功",
+                            "content": {"application/json": {"schema": {"$ref": "#/components/schemas/AuthLoginResponseDto"}}}
+                        },
+                        "403": {
+                            "description": "账号密码登陆失败",
+                            "content": {"application/json": {"example": {"message": "账号密码登陆失败"}}}
+                        }
+                    },
+                    "tags": ["鉴权(auth)"]
+                }
+            },
+        },
+        "info": {"title": "canyon API文档", "description": "canyon API文档", "version": "1.0", "contact": {}},
+        "tags": [{"name": "鉴权(auth)", "description": ""}, {"name": "健康检查(health)", "description": ""}, {
+            "name": "覆盖率",
+            "description": ""
+        }],
+        "servers": [],
+        "components": {
+            "schemas": {
+                "AuthLoginRequestDto": {
+                    "type": "object",
+                    "properties": {
+                        "username": {"type": "string", "description": "账号"},
+                        "password": {"type": "string", "description": "密码"}
+                    },
+                    "required": ["username", "password"]
+                },
+                "AuthLoginResponseDto": {
+                    "type": "object",
+                    "properties": {
+                        "token": {
+                            "type": "string",
+                            "default": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYW55b25JZCI6InR6aGFuZ21AdHJpcC5jb20iLCJpZCI6MSwiaWF0IjoxNjM5Mzc4NTkxLCJleHAiOjE5OTkzNzg1OTF9.nnTT5s6I2CQYFqN_ipq5OmO-J9JS1AINrAgMVaJfJJM"
+                        }
+                    },
+                    "required": ["token"]
+                },
+                "CreateUserDto": {"type": "object", "properties": {}},
+                "CoverageClientDto": {
+                    "type": "object",
+                    "properties": {
+                        "coverage": {"type": "object", "description": "istanbul生成的覆盖率对象"},
+                        "dns": {"type": "string", "description": "覆盖率上报接口，可用 http://canyon.com/coverage/client"},
+                        "reporter": {"type": "string", "description": "上报人的身份令牌，请至 [覆盖率平台](http://canyon.com/#/user) 查看"},
+                        "repoId": {"type": "string", "description": "仓库ID"},
+                        "commitSha": {"type": "string", "description": "commitSha"},
+                        "codeHouseId": {"type": "string", "description": "源ID"},
+                    },
+                    "required": ["coverage", "dns","reporter","repoId","commitSha","codeHouseId"]
+                },
+                "GetManyCoverageResponseDto": {
+                    "type": "object",
+                    "properties": {
+                        "data": {"type": "array", "items": {"$ref": "#/components/schemas/Coverage"}},
+                        "count": {"type": "number"},
+                        "total": {"type": "number"},
+                        "page": {"type": "number"},
+                        "pageCount": {"type": "number"}
+                    },
+                    "required": ["data", "count", "total", "page", "pageCount"]
+                },
+                "Coverage": {"type": "object", "properties": {}},
+                "CreateManyCoverageDto": {
+                    "type": "object",
+                    "properties": {"bulk": {"type": "array", "items": {"$ref": "#/components/schemas/Coverage"}}},
+                    "required": ["bulk"]
+                },
+                "GetManyGitWarehouseResponseDto": {
+                    "type": "object",
+                    "properties": {
+                        "data": {"type": "array", "items": {"$ref": "#/components/schemas/GitWarehouse"}},
+                        "count": {"type": "number"},
+                        "total": {"type": "number"},
+                        "page": {"type": "number"},
+                        "pageCount": {"type": "number"}
+                    },
+                    "required": ["data", "count", "total", "page", "pageCount"]
+                },
+                "CoverageClientSuccess": {
+                    "type": "object",
+                    "properties": {
+                        "error": {"type": "number"},
+                        "msg": {"type": "string","default":"项目ID 67639 Commit Sha c2dd7c51c7493addc62877d855f96e590dcf96a2，共查询到1002条文件覆盖率信息，已聚合生成覆盖率报告，报告地址为http://canyon.com/report/1-67639-c2dd7c51c7493addc62877d855f96e590dcf96a2"},
+                        "isExistCode": {"type": "number","default":"0未知、1代码存在、2新拉取代码"}
+                    },
+                    "required": ["data", "count", "total", "page", "pageCount"]
+                },
+                "GitWarehouse": {"type": "object", "properties": {}},
+                "CreateManyGitWarehouseDto": {
+                    "type": "object",
+                    "properties": {"bulk": {"type": "array", "items": {"$ref": "#/components/schemas/GitWarehouse"}}},
+                    "required": ["bulk"]
+                }
+            }
+        }
+    }
+    Redoc.init(swaggerSpec, {}, document.getElementById("redoc-container"))
+
+    // const js = document.getElementsByClassName("hover-text")[4].getElementsByTagName('a')[0].getAttribute('href')
+
+setTimeout(()=>{
+    const aArr = document.getElementsByTagName('a')
+    for (let i = 0; i < aArr.length; i++) {
+        if (aArr[i].getAttribute('href') === 'https://github.com/Redocly/redoc'){
+            aArr[i].style.display = 'none'
+        }
+    }
+},0)
+</script>
+</html>

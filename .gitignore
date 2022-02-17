@@ -1,0 +1,14 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+
+package-lock.json
+.idea
+code
+report
+
+pnpm-lock.yaml
+.pnpm-debug.log
+conf/applicationdev.yml
