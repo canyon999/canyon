@@ -4,7 +4,10 @@ import { Coverage } from '../entities/coverage.entity'
 import { mergeCoverage, remapCoverage } from '../common/data-convert'
 import { Model } from 'mongoose'
 import { CoverageDocument } from '../schema/coverage.schema'
-import CanyonUtil from "canyon-util";
+import CanyonUtil from 'canyon-util'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Project } from '../entities/project.entity'
+import { FindRepoDetailService } from './find-repo-detail.service'
 
 @Injectable()
 export class RetrieveACoverageForAProjectService {
@@ -13,9 +16,23 @@ export class RetrieveACoverageForAProjectService {
     private coverageModel: Model<CoverageDocument>,
     @Inject('DATABASE_CONNECTION_CoverageRepository')
     private coverageRepository: Repository<Coverage>,
+    @InjectRepository(Project, 'DATABASE_CONNECTION') repo,
+    public findRepoDetailService: FindRepoDetailService,
+    @Inject('DATABASE_CONNECTION_ProjectRepository')
+    private projectRepository: Repository<Project>,
   ) {}
   async invoke(params: any) {
-    const { commitSha } = params
+    const { commitSha, projectId } = params
+
+    const { codeHouseId, repoId } = await this.projectRepository.findOne({
+      id: projectId,
+    })
+
+    const fd = await this.findRepoDetailService.invoke({
+      codeHouseId,
+      repoId,
+    })
+
     const coverageRepositoryFindResult = await this.coverageRepository.find({
       commitSha: commitSha,
     })
@@ -28,6 +45,9 @@ export class RetrieveACoverageForAProjectService {
       cov.push(JSON.parse(c.coverage))
     }
 
-    return CanyonUtil.genTreeSummaryMain(CanyonUtil.mergeCoverage(cov))
+    return {
+      fd,
+      treeSummary: CanyonUtil.genTreeSummaryMain(CanyonUtil.mergeCoverage(cov)),
+    }
   }
 }
