@@ -15,6 +15,7 @@ import { CommitService } from './service/commit.service'
 import { FindRepoDetailService } from './service/find-repo-detail.service'
 import { RetrieveACoverageForAProjectService } from './service/retrieve-a-coverage-for-a-project.service'
 import { FileContentService } from './service/file-content.service'
+import { RetrieveACommitLogService } from './service/retrieve-a-commit-log.service'
 
 @Module({
   imports: [DatabaseModule],
@@ -34,6 +35,7 @@ import { FileContentService } from './service/file-content.service'
     CodeHouseCrudService,
     ProjectCrudService,
     CoverageCrudService,
+    RetrieveACommitLogService,
     ...coverageProviders,
     ...userProviders,
     ...codeHouseProviders,

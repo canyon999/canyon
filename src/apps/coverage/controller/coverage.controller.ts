@@ -14,6 +14,7 @@ import { Crud, CrudController } from '@nestjsx/crud'
 import { Coverage } from '../entities/coverage.entity'
 import { CoverageCrudService } from '../service/crud/coverage.crud.service'
 import { CommitService } from '../service/commit.service'
+import {RetrieveACommitLogService} from "../service/retrieve-a-commit-log.service";
 
 @UsePipes(new ValidationPipe())
 @Controller('coverage')
@@ -27,6 +28,7 @@ export class CoverageController implements CrudController<Coverage> {
     private readonly coverageClientService: CoverageClientService,
     public service: CoverageCrudService,
     public commitService: CommitService,
+    public retrieveACommitLogService: RetrieveACommitLogService,
   ) {}
   @Post('client')
   create(
@@ -39,5 +41,10 @@ export class CoverageController implements CrudController<Coverage> {
   @Get('commit')
   commit(@Query() commitDto: any) {
     return this.commitService.invoke(commitDto)
+  }
+
+  @Get('log')
+  retrieveACommitLog(@Query() retrieveACommitLogDto: any) {
+    return this.retrieveACommitLogService.invoke(retrieveACommitLogDto)
   }
 }
