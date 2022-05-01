@@ -44,23 +44,11 @@ export class AuthService {
 
     console.log(process.env.CUSTOM_ENV)
 
-    let redirect_uri = ''
-    let ClientId = ''
-    let clientSecret = ''
+    const redirect_uri = global.conf.gitlab.application.redirectUri
+    const ClientId = global.conf.gitlab.application.clientId
+    const clientSecret = global.conf.gitlab.application.clientSecret
 
-    if (process.env.CUSTOM_ENV === 'dev') {
-      redirect_uri = 'http://127.0.0.1:8000/login'
-      ClientId =
-        '50c768081026f4da5a0fb5368d36fa5e464d0ea614ed022490ad5771f3c688b3'
-      clientSecret =
-        'da10f1d30a12021b0c875685177cc0d05d3fc23094c10671414ffebbd1ebd532'
-    } else {
-      redirect_uri = 'http://canyon-platform-v2.rico.org.cn/login'
-      ClientId =
-        'c319c62cb9bd2ab6736ffb6b1788bf7c0037bfe99c922f780d18330e2a00f067'
-      clientSecret =
-        'c4b815bce6661db971409959e582c77b0c4c48f86d0849e652e5d6fe6ebc84be'
-    }
+    console.log(redirect_uri, ClientId, clientSecret)
 
     const { refresh_token: thRefreshToken, access_token: thAccessToken } =
       await axios
