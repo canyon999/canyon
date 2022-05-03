@@ -2,6 +2,7 @@ import { createConnection } from 'typeorm'
 import * as mongoose from 'mongoose'
 const { datasource } = global.conf
 const { mysql, mongodb } = datasource
+console.log(mysql,'mysql')
 export const databaseProviders = [
   {
     provide: 'DATABASE_CONNECTION',
