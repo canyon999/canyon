@@ -1,4 +1,4 @@
-FROM zhangtao25/canyon-platform:v2.0.3 as FrontEnd
+FROM zhangtao25/canyon-platform:v2.0.5 as FrontEnd
 
 FROM node:14.16.0-alpine
 
