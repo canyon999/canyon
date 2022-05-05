@@ -42,4 +42,24 @@ export class GitlabService {
         return res.data
       })
   }
+
+  async getASingleCommit({ currentUser, thRepoId, commitSha }) {
+    const token = await this.userRepository
+      .findOne({ id: currentUser })
+      .then((res) => res.thAccessToken)
+    return await axios
+      .get(
+        `https://gitlab.com/api/v4/projects/${encodeURIComponent(
+          thRepoId,
+        )}/repository/commits/${commitSha}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      .then((res) => {
+        return res.data
+      })
+  }
 }
