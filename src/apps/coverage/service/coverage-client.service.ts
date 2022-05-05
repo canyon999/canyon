@@ -7,6 +7,7 @@ import { CoverageDocument } from '../schema/coverage.schema'
 import { Model } from 'mongoose'
 import CanyonUtil from 'canyon-util'
 import { Repo } from '../entities/repo.entity'
+import axios from 'axios'
 
 /**
  * 上传覆盖率，十分重要的服务
@@ -24,21 +25,20 @@ export class CoverageClientService {
     @Inject('user_REPOSITORY')
     private userRepository: Repository<User>,
     @Inject('DATABASE_CONNECTION_RepoRepository')
-    private projectRepository: Repository<Repo>,
+    private repoRepository: Repository<Repo>,
   ) {}
 
   async invoke(currentUser, coverageClientDto: any) {
     const coverageReport = await this.dataFormatAndCheck(coverageClientDto)
-    const { coverage, commitSha, projectId, instrumentCwd } = coverageReport
+    const { coverage, commitSha, repoId, instrumentCwd } = coverageReport
     // 每次上报的覆盖率，本体存在mongodb，覆盖率信息存在mysql，通过relationId关联
     const coverageModelInsertManyResult = await this.coverageModel.create({
       coverage: JSON.stringify(coverage),
     })
     const cov = {
       commitSha,
-      coverage: '',
       reporter: currentUser,
-      projectId,
+      repoId,
       instrumentCwd,
       relationId: String(coverageModelInsertManyResult._id),
     }
@@ -71,39 +71,38 @@ export class CoverageClientService {
       )
     }
 
-    console.log(1, data.repoId)
+    console.log(1, data.thRepoId)
     // 检查是否有项目在表里
-    let checkIsHasProject = await this.projectRepository.findOne({
-      repoId: String(data.repoId),
+    let checkIsHasProject = await this.repoRepository.findOne({
+      thRepoId: String(data.thRepoId),
     })
-
-    console.log(data.repoId)
 
     if (!checkIsHasProject) {
       // 如果不在插入以后再查
-      await this.projectRepository.insert([
+      await this.repoRepository.insert([
         {
-          repoId: String(data.repoId),
+          thRepoId: String(data.thRepoId),
         },
       ])
-      checkIsHasProject = await this.projectRepository.findOne({
-        repoId: String(data.repoId),
+      checkIsHasProject = await this.repoRepository.findOne({
+        thRepoId: String(data.thRepoId),
       })
     }
 
     // 3.修改覆盖率路径
 
     // 考虑到会出现大数的情况
-    cov.repoId = String(data.repoId)
     // CanyonUtil.formatReportObject上报时就开启源码回溯
     cov.coverage = await CanyonUtil.formatReportObject({
       coverage,
       instrumentCwd,
     }).then((res) => res.coverage)
     cov.instrumentCwd = data.instrumentCwd
-    cov.projectId = checkIsHasProject.repoId
+    cov.thRepoId = checkIsHasProject.thRepoId
+    cov.repoId = checkIsHasProject.id
     cov.commitSha = data.commitSha
     cov.project = checkIsHasProject
+    console.log(cov, 'covcovcov')
     return cov
   }
 
@@ -120,6 +119,50 @@ export class CoverageClientService {
     return {
       ...data,
       coverage: obj,
+      thRepoId: data.thRepoId || data.repoId || data.projectId,
+    }
+  }
+
+  async retrieveACoverageForAProjectService(params) {
+    const { commitSha } = params
+
+    const token = await this.userRepository
+      .findOne({ id: 1 })
+      .then((res) => res.thAccessToken)
+
+    const fd = await axios
+      .get(
+        `https://gitlab.com/api/v4/projects/${encodeURIComponent(
+          'canyon999/canyon-demo2',
+        )}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      .then((res) => {
+        return res.data
+      })
+
+
+    console.log(fd,'fd')
+
+    const coverageRepositoryFindResult = await this.coverageRepository.find({
+      commitSha: commitSha,
+    })
+    const cov = []
+
+    for (let i = 0; i < coverageRepositoryFindResult.length; i++) {
+      const c = await this.coverageModel.findOne({
+        _id: coverageRepositoryFindResult[i].relationId,
+      })
+      cov.push(JSON.parse(c.coverage))
+    }
+
+    return {
+      fd,
+      treeSummary: CanyonUtil.genTreeSummaryMain(CanyonUtil.mergeCoverage(cov)),
     }
   }
 }

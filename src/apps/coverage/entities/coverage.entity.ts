@@ -12,12 +12,12 @@ export class Coverage extends CommonBaseEntity {
   commitSha: string
 
   @Column({
-    name: 'project_id',
+    name: 'repo_id',
     type: 'int',
     default: 0,
-    comment: '项目id',
+    comment: '仓库id',
   })
-  projectId: number
+  repoId: number
 
   @Column({
     name: 'instrument_cwd',
