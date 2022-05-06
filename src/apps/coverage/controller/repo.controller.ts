@@ -10,11 +10,15 @@ import {
 } from '@nestjs/common'
 import { RepoService } from '../service/repo.service'
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { RepoSummaryService } from '../service/repo-summary.service'
 
 @UseGuards(JwtAuthGuard)
 @Controller('')
 export class RepoController {
-  constructor(private readonly reposService: RepoService) {}
+  constructor(
+    private readonly reposService: RepoService,
+    private readonly repoSummaryService: RepoSummaryService,
+  ) {}
 
   //获取个人所有的项目
   // 1.自己所在的项目
@@ -37,28 +41,12 @@ export class RepoController {
     })
   }
 
-  @Get('repo/:id/summary')
-  summary(@Query() query: any, @Param() param) {
-    // console.log(param, 'param')
-    return {
-      a: [
-        {
-          label: '总共构建',
-          value: 12,
-        },
-        {
-          label: '总共构建',
-          value: 12,
-        },
-        {
-          label: '总共构建',
-          value: 12,
-        },
-        {
-          label: '总共构建',
-          value: 12,
-        },
-      ],
-    }
+  @Get('repo/:thRepoId/summary')
+  summary(@Param() param, @Request() request: { user: { id: number } }) {
+    console.log(param, 'param')
+    return this.repoSummaryService.invoke({
+      thRepoId: param.thRepoId,
+      currentUser: request.user.id,
+    })
   }
 }

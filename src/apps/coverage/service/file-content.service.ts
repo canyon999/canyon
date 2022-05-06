@@ -29,7 +29,7 @@ export class FileContentService {
     const res = await axios
       .get(
         `https://gitlab.com/api/v4/projects/35883228/repository/files/${encodeURIComponent(
-          decodeURIComponent('src/App.tsx'),
+          decodeURIComponent(filePath),
         )}`,
         {
           params: {

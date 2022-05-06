@@ -7,6 +7,7 @@ import { CoverageController } from './controller/coverage.controller'
 import { CoverageClientService } from './service/coverage-client.service'
 import { FileContentService } from './service/file-content.service'
 import { GitlabService } from '../th/service/gitlab.service'
+import {RepoSummaryService} from "./service/repo-summary.service";
 
 @Module({
   imports: [DatabaseModule],
@@ -16,6 +17,7 @@ import { GitlabService } from '../th/service/gitlab.service'
     CoverageClientService,
     FileContentService,
     GitlabService,
+    RepoSummaryService,
     ...coverageProviders,
   ],
 })

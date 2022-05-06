@@ -8,6 +8,7 @@ import { Model } from 'mongoose'
 import CanyonUtil from 'canyon-util'
 import { Repo } from '../entities/repo.entity'
 import axios from 'axios'
+import { GitlabService } from '../../th/service/gitlab.service'
 
 /**
  * 上传覆盖率，十分重要的服务
@@ -26,6 +27,7 @@ export class CoverageClientService {
     private userRepository: Repository<User>,
     @Inject('DATABASE_CONNECTION_RepoRepository')
     private repoRepository: Repository<Repo>,
+    private readonly gitlabService: GitlabService,
   ) {}
 
   async invoke(currentUser, coverageClientDto: any) {
@@ -124,33 +126,42 @@ export class CoverageClientService {
   }
 
   async retrieveACoverageForAProjectService(params) {
-    const { commitSha } = params
+    const { commitSha, currentUser, thRepoId } = params
 
-    const token = await this.userRepository
-      .findOne({ id: 1 })
-      .then((res) => res.thAccessToken)
-
-    const fd = await axios
-      .get(
-        `https://gitlab.com/api/v4/projects/${encodeURIComponent(
-          'canyon999/canyon-demo2',
-        )}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      )
-      .then((res) => {
-        return res.data
-      })
-
-
-    console.log(fd,'fd')
-
-    const coverageRepositoryFindResult = await this.coverageRepository.find({
-      commitSha: commitSha,
+    const fd = await this.gitlabService.getASingleCommit({
+      currentUser,
+      thRepoId: 'canyon999/canyon-demo2',
+      commitSha,
     })
+
+    const baseInfo: any = {
+      lastTimeReport: '',
+      lastReportUsername: '',
+      lastReportAvatar: '',
+      commitMsg: fd.title,
+    }
+
+    const coverageRepositoryFindResult = await this.coverageRepository
+      .createQueryBuilder('coverage')
+      .where({ commitSha: commitSha })
+      .orderBy({
+        createdAt: 'DESC',
+      })
+      .leftJoinAndSelect(User, 'user', `user.id=coverage.reporter`)
+      .select([
+        'coverage.id as id',
+        'coverage.commitSha as commitSha',
+        'coverage.instrumentCwd as instrumentCwd',
+        'coverage.relationId as relationId',
+        'coverage.createdAt as createdAt',
+        'user.username as reporterUsername',
+        'user.avatar as reporterAvatar',
+      ])
+      .getRawMany()
+    baseInfo.lastTimeReport = coverageRepositoryFindResult[0].createdAt
+    baseInfo.lastReportUsername =
+      coverageRepositoryFindResult[0].reporterUsername
+    baseInfo.lastReportAvatar = coverageRepositoryFindResult[0].reporterAvatar
     const cov = []
 
     for (let i = 0; i < coverageRepositoryFindResult.length; i++) {
@@ -163,6 +174,7 @@ export class CoverageClientService {
     return {
       fd,
       treeSummary: CanyonUtil.genTreeSummaryMain(CanyonUtil.mergeCoverage(cov)),
+      baseInfo,
     }
   }
 }
